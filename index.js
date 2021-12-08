@@ -9,7 +9,6 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.SECRET_KEY;
 
-
 const database = process.env.MONGODB_URI;
 console.log('Connecting to the following server:', database);
 
@@ -29,16 +28,18 @@ const typeDefs = gql`
     username: String!
   }
 
+  type AdminNotFoundError {
+    response: String
+  }
+
+  union AdminResponse = Admin | AdminNotFoundError
+
   type Token {
     value: String!
   }
 
-  type Response {
-    response: String!
-  }
-
   type Query {
-    me: Admin
+    me: AdminResponse!
   }
 
   type Mutation {
@@ -61,9 +62,17 @@ const resolvers = {
     me: async (root, args, context) => {
       try {
         const currentAdminData = await Admins.findById(context.currentAdminLogged.id)
-        return currentAdminData
+        return {
+          __typename: "Admin",
+          _id: currentAdminData._id,
+          name: currentAdminData.name,
+          username: currentAdminData.username,
+        }
       } catch (error) {
-        throw error
+        return {
+          __typename: "AdminNotFoundError",
+          response: error.message
+        }
       }
     }
   },
