@@ -4,6 +4,7 @@ const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-serve
 
 const mongoose = require('mongoose');
 const Admins = require('./models/admins');
+const Contents = require('./models/contents');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
@@ -38,8 +39,27 @@ const typeDefs = gql`
     value: String!
   }
 
+  type Response {
+    response: String!
+  }
+
+  type PricingOptions {
+    OneTimeSolo: Int!
+    OneTimeDuo: Int!
+    ThreeTimeSolo: Int!
+    ThreeTimeDuo: Int!
+    FiveTimeSolo: Int!
+    FiveTimeDuo: Int!
+  }
+
+  type Content {
+    value: String!
+    pricing: PricingOptions!
+  }
+
   type Query {
     me: AdminResponse!
+    showCurrentContent: Content
   }
 
   type Mutation {
@@ -48,6 +68,15 @@ const typeDefs = gql`
       username: String!
       password: String!
     ): Admin!
+
+    updatePricing(
+      OneTimeSolo: Int
+      OneTimeDuo: Int
+      ThreeTimeSolo: Int
+      ThreeTimeDuo: Int
+      FiveTimeSolo: Int
+      FiveTimeDuo: Int
+    ): Response
 
     loginAdmin(
       username: String!
@@ -88,6 +117,72 @@ const resolvers = {
       } catch (error) {
         throw error
       }
+    },
+
+    updatePricing: async (_, { OneTimeSolo, OneTimeDuo, ThreeTimeSolo, ThreeTimeDuo, FiveTimeSolo, FiveTimeDuo }, context) => {
+
+      const loggedAdminID = await context.currentAdminLogged?._id === undefined
+        ? null
+        : context.currentAdminLogged._id;
+        
+      try {
+
+        const findCurrentPricing = await Contents.findOne({ value: "Pricing" });
+
+        const updateCurrentPricing = OneTimeSolo && OneTimeDuo && ThreeTimeSolo && ThreeTimeDuo && FiveTimeSolo && FiveTimeDuo
+          ? 
+          {
+            $set: {
+              "pricing": {
+                "OneTimeSolo": OneTimeSolo,
+                "OneTimeDuo": OneTimeDuo,
+                "ThreeTimeSolo": ThreeTimeSolo,
+                "ThreeTimeDuo": ThreeTimeDuo,
+                "FiveTimeSolo": FiveTimeSolo,
+                "FiveTimeDuo": FiveTimeDuo,
+              }
+            }
+          }
+          : null;
+          
+
+        if (!findCurrentPricing) {
+          const newPricingTemplate = new Contents({
+            value: "Pricing",
+            pricing: {
+              OneTimeSolo: OneTimeSolo,
+              OneTimeDuo: OneTimeDuo,
+              ThreeTimeSolo: ThreeTimeSolo,
+              ThreeTimeDuo: ThreeTimeDuo,
+              FiveTimeSolo: FiveTimeSolo,
+              FiveTimeDuo: FiveTimeDuo
+            },
+          });
+
+          await newPricingTemplate.save();
+
+          return {
+            response: "There was no records of previous pricing template. Template with default values has been added successfully!"
+          };
+        }
+
+
+
+        if (!loggedAdminID) {
+          throw new Error('Could not update the current prices. You are either not authorized or you are not logged in, please login!')
+        } else {
+
+          const updatedPricing = await Contents.collection.findOneAndUpdate(findCurrentPricing, updateCurrentPricing);
+
+          return {
+            response: "Käyttäjä muokannut hintaa!"
+          }
+        }
+      } catch (error) {
+        return {
+          response: error.message
+        };
+      };
     },
 
     loginAdmin: async (root, args) => {
