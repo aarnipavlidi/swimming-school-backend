@@ -39,6 +39,14 @@ const schema = new mongoose.Schema({
             min: 0,
         },
     },
+    content: {
+        primaryElement: [
+            {
+                type: String,
+                default: null
+            },
+        ],
+    },
 });
 
 schema.plugin(uniqueValidator);

@@ -72,7 +72,54 @@ const resolvers = {
         };
       };
     },
-  }
+
+    updateContent: async (_, { getElement, getElementValue }, context) => {
+      
+      const loggedAdminID = await context.currentAdminLogged?._id === undefined
+        ? null
+        : context.currentAdminLogged._id;
+        
+      try {
+
+        const findCurrentContent = await Contents.findOne({ value: "Pricing" });
+        const updateCurrentContent = {
+          $set: {
+            "content": {
+              [getElement]: getElementValue
+            },
+          },
+        };
+
+        if (!findCurrentContent) {
+          const newContentTemplate = new Contents({
+            value: "Pricing",
+            content: {
+              [getElement]: getElementValue
+            },
+          });
+
+          await newContentTemplate.save();
+          return {
+            response: "There was no records of previous content template. Template with default values has been added successfully!"
+          };
+        };
+
+        if (!loggedAdminID) {
+          throw new Error('Could not update the current prices. You are either not authorized or you are not logged in, please login!')
+        } else {
+
+          await Contents.collection.findOneAndUpdate(findCurrentContent, updateCurrentContent);
+          return {
+            response: "You have successfully updated current content into database!"
+          }
+        }
+      } catch (error) {
+        return {
+          response: error.message
+        };
+      };
+    },
+  },
 };
 
 module.exports = resolvers;

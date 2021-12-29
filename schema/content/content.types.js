@@ -15,9 +15,14 @@ const typeDefs = gql`
     FiveTimeDuo: Int
   }
 
+  type ContentOptions {
+    primaryElement: [String]
+  }
+
   type Content {
     value: String!
     pricing: PricingOptions
+    content: ContentOptions
   }
 
   type Query {
@@ -32,6 +37,11 @@ const typeDefs = gql`
       ThreeTimeDuo: Int
       FiveTimeSolo: Int
       FiveTimeDuo: Int
+    ): Response
+
+    updateContent(
+      getElement: String!
+      getElementValue: [String!]
     ): Response
   }
 `
