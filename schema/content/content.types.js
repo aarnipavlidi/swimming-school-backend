@@ -17,6 +17,7 @@ const typeDefs = gql`
 
   type ContentOptions {
     primaryElement: [String]
+    secondaryElement: [String]
   }
 
   type Content {

@@ -40,10 +40,20 @@ const schema = new mongoose.Schema({
         },
     },
     content: {
+        secondaryElement: [
+            {
+                type: String,
+                default: null,
+                required: true,
+                unique: true,
+            },
+        ],
         primaryElement: [
             {
                 type: String,
-                default: null
+                default: null,
+                required: true,
+                unique: true,
             },
         ],
     },

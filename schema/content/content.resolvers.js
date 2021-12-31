@@ -84,9 +84,7 @@ const resolvers = {
         const findCurrentContent = await Contents.findOne({ value: "Pricing" });
         const updateCurrentContent = {
           $set: {
-            "content": {
-              [getElement]: getElementValue
-            },
+            ["content." + getElement]: getElementValue
           },
         };
 
@@ -104,8 +102,12 @@ const resolvers = {
           };
         };
 
+        if(!(getElement === "primaryElement" || getElement === "secondaryElement" )) {
+          throw new Error('Could not update the current content. You tried to update element, which does not exist currently on the app!')
+        };
+
         if (!loggedAdminID) {
-          throw new Error('Could not update the current prices. You are either not authorized or you are not logged in, please login!')
+          throw new Error('Could not update the current content. You are either not authorized or you are not logged in, please login!')
         } else {
 
           await Contents.collection.findOneAndUpdate(findCurrentContent, updateCurrentContent);
