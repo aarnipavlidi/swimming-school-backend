@@ -41,6 +41,7 @@ const typeDefs = gql`
     ): Response
 
     updateContent(
+      getSource: String!
       getElement: String!
       getElementValue: [String!]
     ): Response

@@ -73,7 +73,7 @@ const resolvers = {
       };
     },
 
-    updateContent: async (_, { getElement, getElementValue }, context) => {
+    updateContent: async (_, { getSource, getElement, getElementValue }, context) => {
       
       const loggedAdminID = await context.currentAdminLogged?._id === undefined
         ? null
@@ -81,7 +81,7 @@ const resolvers = {
         
       try {
 
-        const findCurrentContent = await Contents.findOne({ value: "Pricing" });
+        const findCurrentContent = await Contents.findOne({ value: getSource });
         const updateCurrentContent = {
           $set: {
             ["content." + getElement]: getElementValue
@@ -90,7 +90,7 @@ const resolvers = {
 
         if (!findCurrentContent) {
           const newContentTemplate = new Contents({
-            value: "Pricing",
+            value: getSource,
             content: {
               [getElement]: getElementValue
             },
