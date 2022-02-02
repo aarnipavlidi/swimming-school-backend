@@ -10,32 +10,26 @@ const schema = new mongoose.Schema({
     pricing: {
         OneTimeSolo: {
             type: Number,
-            default: 0,
             min: 0,
         },
         OneTimeDuo: {
             type: Number,
-            default: 0,
             min: 0,
         },
         ThreeTimeSolo: {
             type: Number,
-            default: 0,
             min: 0,
         },
         ThreeTimeDuo: {
             type: Number,
-            default: 0,
             min: 0,
         },
         FiveTimeSolo: {
             type: Number,
-            default: 0,
             min: 0,
         },
         FiveTimeDuo: {
             type: Number,
-            default: 0,
             min: 0,
         },
     },
@@ -45,7 +39,6 @@ const schema = new mongoose.Schema({
                 type: String,
                 default: null,
                 required: true,
-                unique: true,
             },
         ],
         primaryElement: [
@@ -53,7 +46,6 @@ const schema = new mongoose.Schema({
                 type: String,
                 default: null,
                 required: true,
-                unique: true,
             },
         ],
     },
