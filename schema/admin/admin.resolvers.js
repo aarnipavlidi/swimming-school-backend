@@ -28,10 +28,10 @@ const resolvers = {
 
   Mutation: {
 
-    createAdmin: async (_, { name, username, password }) => {
+    createAdmin: async (_, { name, email, password }) => {
       try {
         const hashedPassword = await bcrypt.hash(password, 10)
-        const newAdmin = new Admins({ name, username, password: hashedPassword })
+        const newAdmin = new Admins({ name, email, password: hashedPassword })
         await newAdmin.save()
         return newAdmin
       } catch (error) {
@@ -63,5 +63,7 @@ const resolvers = {
     }
   }
 };
+
+
 
 module.exports = resolvers

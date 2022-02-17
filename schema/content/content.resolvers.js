@@ -15,11 +15,13 @@ const resolvers = {
 
   Mutation: {
 
-    updatePricing: async (_, { OneTimeSolo, OneTimeDuo, ThreeTimeSolo, ThreeTimeDuo, FiveTimeSolo, FiveTimeDuo }, context) => {
+    updatePricing: async (_, { OneTimeSolo, OneTimeDuo, ThreeTimeSolo, ThreeTimeDuo, FiveTimeSolo, FiveTimeDuo }, { currentAdminData }) => {
+      
+      const getAdminData = await currentAdminData;
 
-      const loggedAdminID = await context.currentAdminLogged?._id === undefined
+      const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
         ? null
-        : context.currentAdminLogged._id;
+        : getAdminData[process.env.CUSTOM_RULE_ADMIN].adminID;
 
       try {
 
@@ -57,7 +59,7 @@ const resolvers = {
           };
         };
 
-        if (!loggedAdminID) {
+        if (!loggedAdminID || getAdminData?.errorResponse) {
           throw new Error('Could not update the current prices. You are either not authorized or you are not logged in, please login!')
         } else {
 
@@ -73,11 +75,13 @@ const resolvers = {
       };
     },
 
-    updateContent: async (_, { getSource, getElement, getElementValue }, context) => {
+    updateContent: async (_, { getSource, getElement, getElementValue }, { currentAdminData }) => {
       
-      const loggedAdminID = await context.currentAdminLogged?._id === undefined
+      const getAdminData = await currentAdminData;
+
+      const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
         ? null
-        : context.currentAdminLogged._id;
+        : getAdminData[process.env.CUSTOM_RULE_ADMIN].adminID;
         
       try {
 
@@ -106,7 +110,7 @@ const resolvers = {
           throw new Error('Could not update the current content. You tried to update element, which does not exist currently on the app!')
         };
 
-        if (!loggedAdminID) {
+        if (!loggedAdminID || getAdminData?.errorResponse) {
           throw new Error('Could not update the current content. You are either not authorized or you are not logged in, please login!')
         } else {
 

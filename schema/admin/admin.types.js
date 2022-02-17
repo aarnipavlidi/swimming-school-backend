@@ -28,7 +28,7 @@ const typeDefs = gql`
       username: String!
       password: String!
     ): Admin!
-
+    
     loginAdmin(
       username: String!
       password: String!

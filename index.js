@@ -4,14 +4,31 @@ const { ApolloServerPluginLandingPageGraphQLPlayground } = require('apollo-serve
 
 const mongoose = require('mongoose');
 const schema = require('./schema');
-const Admins = require('./models/admins');
 
-const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const JWT_SECRET = process.env.SECRET_KEY;
+const jwksClient = require('jwks-rsa');
+
+const client = jwksClient({
+  jwksUri: process.env.JWKS_URI
+});
+
+function getKey(header, cb){
+  client.getSigningKey(header.kid, function(err, key) {
+    var signingKey = key.publicKey || key.rsaPublicKey;
+    cb(null, signingKey);
+  });
+};
+
+const options = {
+  audience: [
+    process.env.AUTH0_AUDIENCE_API,
+    process.env.AUTH0_AUDIENCE_USER
+  ],
+  issuer: process.env.AUTH0_DOMAIN_NAME,
+  algorithms: ['RS256'],
+};
 
 const database = process.env.MONGODB_URI;
-console.log('Connecting to the following server:', database);
 
 mongoose.connect(database, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
@@ -26,19 +43,45 @@ const server = new ApolloServer({
   plugins: [
     ApolloServerPluginLandingPageGraphQLPlayground(),
   ],
-  context: async ({ req }) => {
+  context: ({ req }) => {
+    
+    const getTokenValue = req.headers?.authorization ? req.headers.authorization : null;
 
-    const auth = req ? req.headers.authorization : null
+    if (getTokenValue.length !== 4 && getTokenValue !== null) {
 
-    if (auth && auth.toLowerCase().startsWith('bearer ')) {
-      const decodedToken = jwt.verify(auth.substring(7), JWT_SECRET)
-      const currentAdminLogged = await Admins.findById(decodedToken.id)
+      const currentAdminData = new Promise(( resolve ) => {
+
+        jwt.verify(getTokenValue, getKey, options, (error, decoded) => {
+
+          if (error) {
+            console.log(error.message);
+            // For this context part I got code block from here: https://github.com/auth0-blog/book-app/blob/master/api/src/server.js
+            // but there was an issue and I was not able to figure it out. If this condition,
+            // error is true, then "return reject(error)" function would crash the server.
+            // Tried to fix it, while using the "reject(...)" function, but was not able to.
+            // I made a "dirty fix" and I am returning "resolve(...)" function, which has
+            // inside the "errorResponse" object with current "error.message" data. This
+            // way I will let the resolver itself catch the error and act accordingly.
+            return resolve({
+              errorResponse: error.message
+            })
+          };
+
+          resolve(decoded);
+        });
+      });
 
       return {
-        currentAdminLogged
+        currentAdminData
+      };
+    }
+
+    return {
+      currentAdminData: {
+        errorResponse: "Token value is missing. Please add one and try again!"
       }
     }
-  }
+  },
 });
 
 server.listen().then(({ url }) => {
