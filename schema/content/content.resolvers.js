@@ -75,6 +75,181 @@ const resolvers = {
       };
     },
 
+    updatePhoneNumber: async (_, { getNewNumber }, { currentAdminData }) => {
+
+      const getAdminData = await currentAdminData;
+
+      const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
+        ? null
+        : getAdminData[process.env.CUSTOM_RULE_ADMIN].adminID;
+
+      try {
+
+        const findCurrentFooter = await Contents.findOne({ value: "Footer" });
+        const updateCurrentPhoneNumber = {
+          $set: {
+            "footer": {
+              "contact": {
+                "phoneNumber": getNewNumber,
+              },
+            },
+          },
+        };
+
+        if (!findCurrentFooter) {
+          const newFooterTemplate = new Contents({
+            value: "Footer",
+            footer: {
+              contact: {
+                phoneNumber: getNewNumber,
+              },
+            },
+          });
+
+          await newFooterTemplate.save();
+          return {
+            response: "There was no records of previous footer template. Template with default values has been added successfully!"
+          };
+        };
+        
+        if (!loggedAdminID || getAdminData?.errorResponse) {
+          throw new Error('Could not update the current number. You are either not authorized or you are not logged in, please login!')
+        };
+
+        if (!getNewNumber) {
+          throw new Error('Could not update the current number, because you are missing required value. Please try again!')
+        } else {
+
+          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentPhoneNumber);
+          return {
+            response: "You have successfully updated current number into database!"
+          }
+        }
+      } catch (error) {
+        return {
+          response: error.message
+        };
+      };
+    },
+
+    updateEmail: async (_, { getNewEmail }, { currentAdminData }) => {
+
+      const getAdminData = await currentAdminData;
+
+      const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
+        ? null
+        : getAdminData[process.env.CUSTOM_RULE_ADMIN].adminID;
+
+      try {
+
+        const findCurrentFooter = await Contents.findOne({ value: "Footer" });
+        const updateCurrentEmail = {
+          $set: {
+            "footer": {
+              "contact": {
+                "email": getNewEmail,
+              },
+            },
+          },
+        };
+
+        if (!findCurrentFooter) {
+          const newFooterTemplate = new Contents({
+            value: "Footer",
+            footer: {
+              contact: {
+                email: getNewEmail,
+              },
+            },
+          });
+
+          await newFooterTemplate.save();
+          return {
+            response: "There was no records of previous footer template. Template with default values has been added successfully!"
+          };
+        };
+        
+        if (!loggedAdminID || getAdminData?.errorResponse) {
+          throw new Error('Could not update the current email. You are either not authorized or you are not logged in, please login!')
+        };
+
+        if (!getNewEmail) {
+          throw new Error('Could not update the current email, because you are missing required value. Please try again!')
+        } else {
+
+          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentEmail);
+          return {
+            response: "You have successfully updated current email into database!"
+          }
+        }
+      } catch (error) {
+        return {
+          response: error.message
+        };
+      };
+    },
+
+    updateLocation: async (_, { getNewAddress, getNewPostalCode, getNewCity }, { currentAdminData }) => {
+
+      const getAdminData = await currentAdminData;
+
+      const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
+        ? null
+        : getAdminData[process.env.CUSTOM_RULE_ADMIN].adminID;
+
+      try {
+
+        const findCurrentFooter = await Contents.findOne({ value: "Footer" });
+        const updateCurrentLocation = {
+          $set: {
+            "footer": {
+              "location": {
+                "address": getNewAddress,
+                "postalCode": getNewPostalCode,
+                "city": getNewCity
+              },
+            },
+          },
+        };
+
+        if (!findCurrentFooter) {
+          const newFooterTemplate = new Contents({
+            value: "Footer",
+            footer: {
+              location: {
+                address: getNewAddress,
+                postalCode: getNewPostalCode,
+                city: getNewCity,
+              },
+            },
+          });
+
+          await newFooterTemplate.save();
+          return {
+            response: "There was no records of previous footer template. Template with default values has been added successfully!"
+          };
+        };
+
+        if (!loggedAdminID || getAdminData?.errorResponse) {
+          throw new Error('Could not update the current footer. You are either not authorized or you are not logged in, please login!')
+        };
+
+        if (!getNewAddress || !getNewPostalCode || !getNewCity) {
+          throw new Error('Could not update the current footer, because you are missing some of the required values. Please try again!')
+        } else {
+
+          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentLocation);
+          return {
+            response: "You have successfully updated current footer into database!"
+          }
+        }
+      } catch (error) {
+        return {
+          response: error.message
+        };
+      };
+    },
+
     updateContent: async (_, { getSource, getElement, getElementValue }, { currentAdminData }) => {
       
       const getAdminData = await currentAdminData;

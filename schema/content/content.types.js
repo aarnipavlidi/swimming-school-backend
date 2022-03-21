@@ -20,10 +20,27 @@ const typeDefs = gql`
     secondaryElement: [String]
   }
 
+  type FooterLocationOptions {
+    address: String
+    postalCode: Int
+    city: String
+  }
+
+  type FooterContactOptions {
+    phoneNumber: Int
+    email: String
+  }
+
+  type FooterOptions {
+    location: FooterLocationOptions
+    contact: FooterContactOptions
+  }
+
   type Content {
     value: String!
     pricing: PricingOptions
     content: ContentOptions
+    footer: FooterOptions
   }
 
   type Query {
@@ -45,6 +62,21 @@ const typeDefs = gql`
       getElement: String!
       getElementValue: [String!]
     ): Response
+
+    updateLocation(
+      getNewAddress: String!
+      getNewPostalCode: Int!
+      getNewCity: String!
+    ): Response
+
+    updatePhoneNumber(
+      getNewNumber: Int!
+    ): Response
+
+    updateEmail(
+      getNewEmail: String!
+    ): Response
+
   }
 `
 

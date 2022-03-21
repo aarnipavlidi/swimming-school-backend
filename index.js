@@ -22,7 +22,7 @@ function getKey(header, cb){
 const options = {
   audience: [
     process.env.AUTH0_AUDIENCE_API,
-    process.env.AUTH0_AUDIENCE_USER
+    process.env.AUTH0_AUDIENCE_USER,
   ],
   issuer: process.env.AUTH0_DOMAIN_NAME,
   algorithms: ['RS256'],
