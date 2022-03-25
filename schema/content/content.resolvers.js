@@ -63,7 +63,7 @@ const resolvers = {
           throw new Error('Could not update the current prices. You are either not authorized or you are not logged in, please login!')
         } else {
 
-          await Contents.collection.findOneAndUpdate(findCurrentPricing, updateCurrentPricing);
+          await Contents.findOneAndUpdate(findCurrentPricing, updateCurrentPricing);
           return {
             response: "You have successfully updated current prices into database!"
           }
@@ -76,7 +76,6 @@ const resolvers = {
     },
 
     updatePhoneNumber: async (_, { getNewNumber }, { currentAdminData }) => {
-
       const getAdminData = await currentAdminData;
 
       const loggedAdminID = getAdminData[process.env.CUSTOM_RULE_ADMIN]?.adminID === undefined
@@ -89,8 +88,14 @@ const resolvers = {
         const updateCurrentPhoneNumber = {
           $set: {
             "footer": {
+              "location": {
+                "address": findCurrentFooter?.footer.location.address,
+                "postalCode": findCurrentFooter?.footer.location.postalCode,
+                "city": findCurrentFooter?.footer.location.city,
+              },
               "contact": {
                 "phoneNumber": getNewNumber,
+                "email": findCurrentFooter?.footer.contact.email,
               },
             },
           },
@@ -100,8 +105,14 @@ const resolvers = {
           const newFooterTemplate = new Contents({
             value: "Footer",
             footer: {
+              location: {
+                address: findCurrentFooter?.footer.location.address,
+                postalCode: findCurrentFooter?.footer.location.postalCode,
+                city: findCurrentFooter?.footer.location.city,
+              },
               contact: {
                 phoneNumber: getNewNumber,
+                email: null,
               },
             },
           });
@@ -120,7 +131,7 @@ const resolvers = {
           throw new Error('Could not update the current number, because you are missing required value. Please try again!')
         } else {
 
-          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentPhoneNumber);
+          await Contents.collection.findOneAndUpdate(findCurrentFooter, updateCurrentPhoneNumber);
           return {
             response: "You have successfully updated current number into database!"
           }
@@ -146,7 +157,13 @@ const resolvers = {
         const updateCurrentEmail = {
           $set: {
             "footer": {
+              "location": {
+                "address": findCurrentFooter?.footer.location.address,
+                "postalCode": findCurrentFooter?.footer.location.postalCode,
+                "city": findCurrentFooter?.footer.location.city,
+              },
               "contact": {
+                "phoneNumber": findCurrentFooter?.footer.contact.phoneNumber,
                 "email": getNewEmail,
               },
             },
@@ -157,7 +174,13 @@ const resolvers = {
           const newFooterTemplate = new Contents({
             value: "Footer",
             footer: {
+              location: {
+                address: findCurrentFooter?.footer.location.address,
+                postalCode: findCurrentFooter?.footer.location.postalCode,
+                city: findCurrentFooter?.footer.location.city,
+              },
               contact: {
+                phoneNumber: null,
                 email: getNewEmail,
               },
             },
@@ -177,7 +200,7 @@ const resolvers = {
           throw new Error('Could not update the current email, because you are missing required value. Please try again!')
         } else {
 
-          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentEmail);
+          await Contents.collection.findOneAndUpdate(findCurrentFooter, updateCurrentEmail);
           return {
             response: "You have successfully updated current email into database!"
           }
@@ -208,6 +231,10 @@ const resolvers = {
                 "postalCode": getNewPostalCode,
                 "city": getNewCity
               },
+              "contact": {
+                "phoneNumber": findCurrentFooter?.footer.contact.phoneNumber,
+                "email": findCurrentFooter?.footer.contact.email,
+              },
             },
           },
         };
@@ -221,6 +248,10 @@ const resolvers = {
                 postalCode: getNewPostalCode,
                 city: getNewCity,
               },
+              contact: {
+                phoneNumber: findCurrentFooter?.footer.contact.phoneNumber,
+                email: findCurrentFooter?.footer.contact.email,
+              }
             },
           });
 
@@ -238,7 +269,7 @@ const resolvers = {
           throw new Error('Could not update the current footer, because you are missing some of the required values. Please try again!')
         } else {
 
-          await Contents.findOneAndUpdate(findCurrentFooter, updateCurrentLocation);
+          await Contents.collection.findOneAndUpdate(findCurrentFooter, updateCurrentLocation);
           return {
             response: "You have successfully updated current footer into database!"
           }

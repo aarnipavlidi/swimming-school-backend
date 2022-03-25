@@ -22,12 +22,12 @@ const typeDefs = gql`
 
   type FooterLocationOptions {
     address: String
-    postalCode: Int
+    postalCode: String
     city: String
   }
 
   type FooterContactOptions {
-    phoneNumber: Int
+    phoneNumber: String
     email: String
   }
 
@@ -65,12 +65,12 @@ const typeDefs = gql`
 
     updateLocation(
       getNewAddress: String!
-      getNewPostalCode: Int!
+      getNewPostalCode: String!
       getNewCity: String!
     ): Response
 
     updatePhoneNumber(
-      getNewNumber: Int!
+      getNewNumber: String!
     ): Response
 
     updateEmail(

@@ -55,7 +55,7 @@ const schema = new mongoose.Schema({
         type: String,
       },
       postalCode: {
-        type: Number,
+        type: String,
       },
       city: {
         type: String,
@@ -63,7 +63,7 @@ const schema = new mongoose.Schema({
     },
     contact: {
       phoneNumber: {
-        type: Number,
+        type: String,
       },
       email: {
         type: String,
